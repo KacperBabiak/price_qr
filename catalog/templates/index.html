@@ -1,0 +1,110 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+  <h1>Simulation</h1>
+  
+  <form action ="/catalog/" method = "post">
+    {% csrf_token %}
+    <label for="product_name">Choose product: </label>
+    <select name="product_select" id="product_name" >
+            {% for i in products %}
+      
+            <option id="product_option">{{i}}</option>
+            
+            
+            {% endfor %}
+    </select>
+  
+
+  </form>
+
+  <button type="button" class=
+  "btn btn-default" id="generate" onclick="onClickQR()">
+  Generate
+  </button>
+
+  <p>QR code:</p>
+  {% load static %}
+  <img class="qrcode" src="{% static 'images/test.png' %}" alt="test" style="width:400px;height:400px;" />
+  
+  <p>Price of scanned product:</p>
+  <ul>
+    <li id="name"> {{ name }}</li>
+    <li id="price"> {{ price }}</li>
+  </ul>
+
+  <p>Price tag simulation developed by <em>Kacper Babiak, Łukasz Bladziak, Tomasz Kaszuba</em>!</p>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script> 
+  // Function to HTML encode the text
+    // This creates a new hidden element,
+    // inserts the given text into it
+    // and outputs it out as HTML
+    function htmlEncode(value) {
+        return $('<div/>').text(value).html();
+    }
+
+    var dict={}
+    dict['Banan'] = "0b9d28ec-228b-4042-8378-71982b5e46aa"
+    dict['Gruszka'] = "310c8bd5-d82a-4a41-8f56-72f90d3f9f0e"
+    dict['Jabłko'] = "b65e96fe-7ac7-46c7-93d6-b718b0546ae6"
+    
+
+    async function onClickQR() {
+                  
+                  //const url = "http://127.0.0.1:8000/PriceDisplay/"
+
+                  //data = await fetch_product(url);
+                  //console.log(data)
+                  sel = document.getElementById("product_name")
+                  var text= sel.options[sel.selectedIndex].text;
+                  console.log(text)
+                  const display_url = "http://127.0.0.1:8000/PriceDisplay/" + dict[text] + "/"
+
+                
+                  
+                  data = await fetch_product(display_url);
+                  $('.qrcode').attr('src', data.qr_code_img);
+
+          
+                  const prod_url = "http://127.0.0.1:8000/Products/" + data.product + "/"
+                  product =  await fetch_product(prod_url);
+                  
+                  document.getElementById("name").innerHTML = product.name;
+                  document.getElementById("price").innerHTML = product.price;
+            
+
+            
+
+
+            
+
+            
+            
+            
+            
+    };
+
+    async function fetch_product(url){
+      
+      return fetch(url).then(function(response) {
+              return response.json();
+            }).then(function(json) {
+              return json;
+            });
+
+
+    }
+    
+    
+    
+  
+    
+  
+  </script>
+
+  
+
+  {% endblock %}
